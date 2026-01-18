@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const admin_jwt_password = "decrypt";
+const { admin_jwt_password } = require ("../config"); 
 const adminRouter = Router();
 const { adminModel } = require("../db");
 const jwt = require("jsonwebtoken");
