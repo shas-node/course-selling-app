@@ -1,7 +1,8 @@
 const { Router } = require("express");
 const { admin_jwt_password } = require ("../config"); 
 const adminRouter = Router();
-const { adminModel } = require("../db");
+const { adminModel, courseModel } = require("../db");
+const { adminMiddleware } = require("../middleware/admin.middleware");
 const jwt = require("jsonwebtoken");
 adminRouter.post("/signup", async function(req,res){
      const { email,password,firstName,lastName } = req.body;
@@ -45,22 +46,61 @@ adminRouter.post("/signin",async function(req,res){
         })
     }
 })
-adminRouter.post("/course",function(req,res){
+adminRouter.post("/course",adminMiddleware, async function(req,res){
+
+    const creatorId = req.userId;
+
+    const {title,description,price,imageUrl} = req.body;
+
+    const course = await courseModel.create ({
+        title,
+        description,
+        price,
+        imageUrl,
+        creatorId
+    })
     res.json({
-        message: "signin endpoint"
+        message: "course created",
+        courseId: course._id
     })
 })
 
-adminRouter.put("/course",function(req,res){
+adminRouter.put("/course",adminMiddleware,async function(req,res){
+    const creatorId = req.userId;
+     const {title,description,price,imageUrl,courseId} = req.body;
+
+     await courseModel.updateOne ({
+        _id: courseId,
+        creatorId
+     },{
+        title,
+        description,
+        price,
+        imageUrl,
+        
+     })
     res.json({
-        message: "signin endpoint"
+        message: "course updated",
+        courseId:course._id
     })
 })
 
-adminRouter.get("/course/bulk",function(req,res){
+adminRouter.get("/course/bulk",adminMiddleware,async function(req,res){
+
+    const creatorId = req.userId;
+   
+     const {title,description,price,imageUrl,courseId} = req.body;
+
+     const courses = await courseModel.find ({
+        
+        creatorId
+     })
     res.json({
-        message: "signin endpoint"
+        message:"Courses:",
+        courses
+        
     })
+    
 })
 
 module.exports = {
